@@ -1,0 +1,20 @@
+{
+  "name": "reduite",
+  "version": "1.0.0",
+  "description": "一个轻量的、函数式的Redux辅助库。(A lightweight functional Redux helper.)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "license": "MIT",
+  "dependencies": {
+    "redux": "^4.0.1",
+    "redux-actions": "^2.6.5",
+    "redux-saga": "^1.0.2",
+    "reselect": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.0.2",
+    "@types/redux-actions": "^2.6.1",
+    "typescript": "^3.4.5"
+  }
+}
