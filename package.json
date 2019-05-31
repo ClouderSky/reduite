@@ -1,11 +1,14 @@
 {
   "name": "reduite",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "一个轻量的、函数式的Redux辅助库。(A lightweight functional Redux helper.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": ["dist"],
   "license": "MIT",
+  "repository": {
+    "type": "git", "url": "https://github.com/ClouderSky/reduite"
+  },
   "dependencies": {
     "redux": "^4.0.1",
     "redux-actions": "^2.6.5",

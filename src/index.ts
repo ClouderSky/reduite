@@ -8,7 +8,7 @@ import {
 import { Action, createAction, handleActions } from 'redux-actions';
 import createSagaMiddleware from 'redux-saga';
 import {
-    ForkEffect, takeEvery, takeLatest, takeLeading, put, all,
+    ForkEffect, takeEvery, takeLatest, takeLeading, all,
 } from 'redux-saga/effects';
 import { Selector } from 'reselect';
 

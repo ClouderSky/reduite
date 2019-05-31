@@ -1,32 +1,4 @@
-# Reduite
 
-一个轻量的、函数式的Redux辅助库。
-
-(A lightweight functional Redux helper.)
-
-完全基于Typescript设计并实现的，充分考虑代码提示与类型检查。
-
-(Design and implement by Typescript, for better autocomplete and type hint.)
-
-### 安装
-
-使用npm：
-
-```shell
-npm install --save reduite
-```
-
-或者使用yarn：
-
-```shell
-yarn add reduite
-```
-
-### 用例
-
-创建一个计数器模型：(A counter model example :)
-
-```typescript
 import {
     Model, Fetch, ReducerMap, SagaCreator, identityFunc, createStore,
 } from 'reduite';
@@ -91,42 +63,40 @@ void function () {
  * [4] now decrease counter back
  * [5] current counter : 0
  */
-```
 
-关于模型的创建，还可以使用更紧凑的版本：
+void function () {
 
-```typescript
-interface IState {
-    counter : number;
-};
+    interface IState {
+        counter : number;
+    };
 
-const initialState : IState = { counter : 0 };
+    const initialState : IState = { counter : 0 };
 
-const model = Model.create('counter', initialState, {
-    increase : identityFunc<number>(),
-    decrease : identityFunc<number>(),
-}, fetch => ({
-    counter : createSelector(fetch, state => state.counter),
-})).reducer({
-    increase : (state, { payload }) => ({
-        ...state, counter : state.counter + payload,
-    }),
-    decrease : (state, { payload }) => ({
-        ...state, counter : state.counter - payload,
-    }),
-}).latest(action => ({
-    increase : function* ({ payload }) {
-        console.log('add with :', payload);
+    const model = Model.create('counter', initialState, {
+        increase : identityFunc<number>(),
+        decrease : identityFunc<number>(),
+    }, fetch => ({
+        counter : createSelector(fetch, state => state.counter),
+    })).reducer({
+        increase : (state, { payload }) => ({
+            ...state, counter : state.counter + payload,
+        }),
+        decrease : (state, { payload }) => ({
+            ...state, counter : state.counter - payload,
+        }),
+    }).latest(action => ({
+        increase : function* ({ payload }) {
+            console.log('add with :', payload);
 
-        // warning : model is a global variable
-        const selector = model.selector.counter;
-        console.log('current counter :', selector(yield select()));
+            // warning : model is a global variable
+            const selector = model.selector.counter;
+            console.log('current counter :', selector(yield select()));
 
-        console.log('now decrease counter back');
-        yield put(action.decrease(payload));
+            console.log('now decrease counter back');
+            yield put(action.decrease(payload));
 
-        console.log('current counter :', selector(yield select()))
-    },
-})).value();
-```
+            console.log('current counter :', selector(yield select()))
+        },
+    })).value();
 
+}();
