@@ -1,23 +1,43 @@
 {
   "name": "reduite",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "一个轻量的、函数式的Redux辅助库。(A lightweight functional Redux helper.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "license": "MIT",
   "repository": {
-    "type": "git", "url": "https://github.com/ClouderSky/reduite"
+    "type": "git",
+    "url": "https://github.com/ClouderSky/reduite"
   },
   "dependencies": {
+    "@types/node": "^12.0.2",
+    "@types/ramda": "^0.26.18",
+    "@types/redux-actions": "^2.6.1",
+    "ramda": "^0.26.1",
     "redux": "^4.0.1",
     "redux-actions": "^2.6.5",
     "redux-saga": "^1.0.2",
-    "reselect": "^4.0.0"
+    "reselect": "^4.0.0",
+    "typescript": "^3.4.5"
   },
   "devDependencies": {
-    "@types/node": "^12.0.2",
-    "@types/redux-actions": "^2.6.1",
-    "typescript": "^3.4.5"
+    "@types/jest": "^24.0.15",
+    "@types/react": "^16.8.23",
+    "@types/react-redux": "^7.1.1",
+    "del": "^5.0.0",
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^5.0.1",
+    "jest": "^24.8.0",
+    "merge-stream": "^2.0.0",
+    "react": "^16.8.6",
+    "react-redux": "^7.1.0",
+    "ts-jest": "^24.0.2"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "test": "jest"
   }
 }

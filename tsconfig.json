@@ -7,10 +7,16 @@
         "target": "es5",
         "declaration": true,
         "removeComments": true,
-        "lib": ["dom", "es2017"]
+        "lib": ["dom", "es2017"],
+        "baseUrl": ".",
+        "paths": {
+            "reduite/*": ["./src/*"],
+            "reduite": ["./src/index.ts"]
+        }
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "__tests__/**/*"
     ],
     "exclude": [
         "node_modules",
