@@ -27,40 +27,30 @@ yarn add reduite
 创建一个计数器模型：(A counter model example :)
 
 ```typescript
-import {
-    Model, Fetch, ReducerMap, SagaCreator, identityFunc, createStore,
-} from 'reduite';
-import { createSelector } from 'reselect';
-import { select, put } from 'redux-saga/effects';
+import {model, createStore} from 'reduite';
+import {createSelector} from 'reselect';
+import {select, put} from 'redux-saga/effects';
 
 
 void function () {
 
-    interface IState {
-        counter : number;
-    };
+    interface State {
+        value : number;
+    }
 
-    const initialState : IState = { counter : 0 };
+    const initial : State = {value : 0};
 
-    const actionMap = {
-        increase : identityFunc<number>(),
-        decrease : identityFunc<number>(),
-    };
-
-    const selectorMap = (fetch : Fetch<IState>) => ({
-        counter : createSelector(fetch, state => state.counter),
-    });
-
-    const reducerMap : ReducerMap<IState, typeof actionMap> = {
-        increase : (state, { payload }) => ({
-            ...state, counter : state.counter + payload,
-        }),
-        decrease : (state, { payload }) => ({
-            ...state, counter : state.counter - payload,
-        }),
-    };
-
-    const sagaCreator : SagaCreator<typeof actionMap> = action => ({
+    const counter = model('counter', initial).action({
+        increase : (x : number) => x,
+        decrease : (x : number) => x,
+        reset : () => null,
+    }).reducer({
+        increase : (s, {payload : v}) => ({...s, value : s.value + v}),
+        decrease : (s, {payload : v}) => ({...s, value : s.value - v}),
+        reset : s => ({...s, value : 0}),
+    }).selector(fetch => {
+        return {value : createSelector(fetch, x => x.value)};
+    }).latest(action => ({
         increase : function* ({ payload }) {
             console.log('add with :', payload);
 
@@ -73,11 +63,9 @@ void function () {
 
             console.log('current counter :', selector(yield select()))
         },
-    });
+    })).value();
 
-    const model = Model.create('counter', initialState, actionMap, selectorMap)
-                       .reducer(reducerMap).latest(sagaCreator).value();
-    const store = createStore([model]);
+    const store = createStore([counter]);
     console.log('current counter :', model.selector.counter(store.getState()));
     store.dispatch(model.action.increase(1));
 
@@ -92,41 +80,3 @@ void function () {
  * [5] current counter : 0
  */
 ```
-
-关于模型的创建，还可以使用更紧凑的版本：
-
-```typescript
-interface IState {
-    counter : number;
-};
-
-const initialState : IState = { counter : 0 };
-
-const model = Model.create('counter', initialState, {
-    increase : identityFunc<number>(),
-    decrease : identityFunc<number>(),
-}, fetch => ({
-    counter : createSelector(fetch, state => state.counter),
-})).reducer({
-    increase : (state, { payload }) => ({
-        ...state, counter : state.counter + payload,
-    }),
-    decrease : (state, { payload }) => ({
-        ...state, counter : state.counter - payload,
-    }),
-}).latest(action => ({
-    increase : function* ({ payload }) {
-        console.log('add with :', payload);
-
-        // warning : model is a global variable
-        const selector = model.selector.counter;
-        console.log('current counter :', selector(yield select()));
-
-        console.log('now decrease counter back');
-        yield put(action.decrease(payload));
-
-        console.log('current counter :', selector(yield select()))
-    },
-})).value();
-```
-
