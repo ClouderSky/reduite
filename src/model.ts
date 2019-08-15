@@ -9,6 +9,7 @@ import {
 } from 'redux';
 import {Action, createAction, handleActions} from 'redux-actions';
 import {Selector} from 'reselect';
+import {PersistConfig, persistStore, persistReducer} from 'redux-persist';
 import createSagaMiddleware from 'redux-saga';
 import {
     ForkEffect, takeEvery, takeLatest, takeLeading, all,
@@ -148,6 +149,68 @@ class Model<S, A extends ActionMap, F extends SelectorMap> {
 }
 
 export const model = Model.create;
+
+
+export class Store {
+
+    static of = (modelList : ModelValue[], persistConfig ?: PersistConfig) =>
+        new Store(modelList, persistConfig);
+
+    private modelList : ModelValue[];
+    private middlewareList : Middleware[] = [];
+    private sagaTask : ForkEffect[] = [];
+
+    private compose : typeof compose;
+    private persistConfig ?: PersistConfig;
+
+    constructor (modelList : ModelValue[], persistConfig ?: PersistConfig) {
+        this.modelList = modelList;
+        this.persistConfig = persistConfig;
+
+        this.compose = 'object' === typeof window
+            && 'development' === process.env.NODE_ENV
+            && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+            || compose;
+    }
+
+    addMiddleware = (middleware : Middleware) => {
+        this.middlewareList.push(middleware);
+        return this;
+    };
+
+    addSagaTask = (task : ForkEffect) => {
+        this.sagaTask.push(task);
+        return this;
+    };
+
+    create = () => {
+        const {modelList, sagaTask} = this;
+
+        // 合并事件处理器
+        const reducer = combineReducers(Identify.of(modelList)
+            .map(map(x => ({[x.name] : x.reducer})))
+            .map(x => mergeAll(x))
+            .join());
+        const persistedReducer : typeof reducer = this.persistConfig ?
+            persistReducer(this.persistConfig, reducer) as any : reducer;
+
+        // 合并高阶函数
+        const saga = createSagaMiddleware();
+        const enhancer = this.compose(
+            applyMiddleware(saga, ...this.middlewareList));
+
+        // 创建数据仓库并启动事件异步处理
+        const store = createReduxStore(persistedReducer, enhancer);
+        const persistor = persistStore(store);
+
+        saga.run(function* () {
+            yield all(modelList.map(x => x.saga).reduce(concat, sagaTask));
+        });
+
+        return {store, persistor};
+    };
+
+}
 
 
 export const createStore = (
