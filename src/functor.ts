@@ -29,6 +29,35 @@ export class Identify<T = any> {
 }
 
 
+export class Maybe<T = any> {
+
+    static of = <T>(x : T) => new Maybe<T>(x);
+
+    __value : T;
+
+    constructor (x : T) {
+        this.__value = x;
+    }
+
+    inspect = () => `Maybe(${inspect(this.__value)})`;
+
+    isNothing = () => null === this.__value || undefined === this.__value;
+
+    map = <R>(f : Mapper<NonNullable<T>, R>) : Maybe<R> =>
+        this.isNothing() ?
+            (this as any) : Maybe.of(f(this.__value as NonNullable<T>));
+
+    chain = <R>(f : (x : T) => R) => this.map(f).__value;
+
+    join = () => this.__value;
+
+}
+
+export const maybe = <T, R>(
+    x : any, f : Mapper<NonNullable<T>, R>, m : Maybe<T>,
+) => m.isNothing() ? x : f(m.__value as NonNullable<T>);
+
+
 export class Left<T = any> {
 
     static of = <T>(x : T) => new Left(x);
