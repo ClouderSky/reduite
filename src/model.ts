@@ -63,8 +63,8 @@ type SagaMap<A extends ActionMap> = {
     [k in keyof A] : SagaFunc<ReturnType<A[k]>>;
 };
 
-export type SagaCreator<A extends ActionMap> =
-    (action : ActionFuncMap<A>) => Partial<SagaMap<A>>;
+export type SagaCreator<A extends ActionMap, F extends SelectorMap> =
+    (action : ActionFuncMap<A>, selector : F) => Partial<SagaMap<A>>;
 
 /**
  * 定义模型对象接口与类
@@ -106,6 +106,8 @@ class Model<S, A extends ActionMap, F extends SelectorMap> {
 
     value = () => this._value;
 
+    make = (type : keyof A) => this._wrapKey(type as string);
+
     action = <AA extends ActionMap>(actionMap : AA) => {
         const action = mapObjIndexed(
             (v, k) => createAction(this._wrapKey(k), v), actionMap,
@@ -133,8 +135,9 @@ class Model<S, A extends ActionMap, F extends SelectorMap> {
         });
     };
 
-    private _saga = (take : SagaTake) => (creator : SagaCreator<A>) => {
-        const sagaMap = creator(this._value.action) as SagaMap<A>;
+    private _saga = (take : SagaTake) => (creator : SagaCreator<A, F>) => {
+        const sagaMap =
+            creator(this._value.action, this._value.selector) as SagaMap<A>;
         const saga = [
             ...(this._value.saga || []),
             ...toPairs(sagaMap).map(([k, v]) => take(this._wrapKey(k), v)),

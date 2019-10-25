@@ -1,6 +1,6 @@
 
 
-import {model, createStore} from 'reduite/model';
+import {model, createStore, Store} from 'reduite/model';
 import {equals} from 'ramda';
 import {createSelector} from 'reselect';
 
@@ -22,9 +22,12 @@ describe('test counter state', () => {
         reset : s => ({...s, value : 0}),
     }).selector(fetch => {
         return {value : createSelector(fetch, x => x.value)};
-    }).value();
+    }).leading((action, selector) => ({
+        reset : function* () { console.log('reset'); },
+    })).value();
 
-    const store = createStore([counter]);
+    // const store = createStore([counter]);
+    const {store} = Store.of([counter]).create();
     const getState = () : State => store.getState()['counter'];
 
     it('model name', () => {
