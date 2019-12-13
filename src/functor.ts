@@ -43,11 +43,13 @@ export class Maybe<T = any> {
 
     isNothing = () => null === this.__value || undefined === this.__value;
 
-    map = <R>(f : Mapper<NonNullable<T>, R>) : Maybe<R> =>
-        this.isNothing() ?
-            (this as any) : Maybe.of(f(this.__value as NonNullable<T>));
+    map = <R>(f : Mapper<NonNullable<T>, R>)
+            : Maybe<T extends null | undefined ? R | null : R> =>
+        this.isNothing() ? this as any : Maybe.of(f(this.__value as NonNullable<T>));
 
-    chain = <R>(f : (x : T) => R) => this.map(f).__value;
+    chain = <R>(f : Mapper<NonNullable<T>, Maybe<R>>)
+            : Maybe<T extends null | undefined ? R | null : R> =>
+        this.isNothing() ? this as any : this.map(f).join();
 
     join = () => this.__value;
 
@@ -128,7 +130,7 @@ export class IO<T = any> {
 
     join = () => this.unsafePerformIO();
 
-    chain = <R>(f : (x : T) => IO<R>) => this.map(f).join();
+    chain = <R>(f : (x : T) => IO<R>) => new IO(() => this.map(f).join().join());
 
     ap = <P>(a : IO<P>) : T extends (x : P) => infer R ? IO<R> : IO<unknown> =>
         (this.chain as any)(a.map);

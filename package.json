@@ -1,6 +1,6 @@
 {
   "name": "reduite",
-  "version": "1.1.7",
+  "version": "1.2.0",
   "description": "一个轻量的、函数式的Redux辅助库。(A lightweight functional Redux helper.)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
