@@ -1,0 +1,1 @@
+# `@reduite/eslint-config`
